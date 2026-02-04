@@ -1,134 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>For Anoma ❤️</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: 'Arial', sans-serif;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
       background: linear-gradient(135deg, #ff9a9e, #fad0c4);
       overflow: hidden;
+      color: #333;
     }
-
     .card {
-      background: white;
-      padding: 25px;
+      position: relative;
+      z-index: 2;
+      background: #fff;
+      margin: 20px;
+      padding: 22px;
       border-radius: 20px;
       text-align: center;
-      max-width: 350px;
+      max-width: 420px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      animation: pop 1s ease;
     }
-
-    @keyframes pop {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    h1 {
-      color: #ff4b5c;
-      margin-bottom: 10px;
-    }
-
-    p {
-      color: #444;
-      font-size: 16px;
-      margin-bottom: 20px;
-    }
-
+    h1 { color: #ff4b5c; margin-bottom: 8px; }
+    h2 { color: #ff4b5c; margin: 10px 0; }
+    p { line-height: 1.5; }
+    .btns { margin-top: 12px; }
     button {
-      padding: 10px 20px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 20px;
+      border-radius: 999px;
       font-size: 16px;
       cursor: pointer;
-      margin: 10px;
-      transition: 0.3s;
+      margin: 6px;
     }
-
-    #yesBtn {
-      background: #ff4b5c;
-      color: white;
-    }
-
-    #yesBtn:hover {
-      transform: scale(1.1);
-    }
-
+    #yesBtn { background: #ff4b5c; color: #fff; }
     #noBtn {
-      background: #ddd;
-      position: absolute;
-    }
-
-    .hearts {
+      background: #eee;
       position: fixed;
-      bottom: -10px;
-      font-size: 20px;
-      animation: float 5s linear infinite;
-      color: red;
+      z-index: 3;
+      left: 50%;
+      top: 70%;
+      transform: translate(-50%, -50%);
     }
 
-    @keyframes float {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-100vh); opacity: 0; }
+    .petal, .heart {
+      position: fixed;
+      top: -20px;
+      z-index: 1;
+      pointer-events: none;
+      animation: fall linear forwards;
+      opacity: 0.9;
+    }
+    @keyframes fall {
+      from { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0.6; }
+    }
+
+    .tap-heart {
+      position: fixed;
+      pointer-events: none;
+      animation: pop 1s ease forwards;
+      font-size: 22px;
+    }
+    @keyframes pop {
+      0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
+      100% { transform: translate(-50%, -80%) scale(1.4); opacity: 0; }
+    }
+
+    .typing {
+      font-weight: bold;
+      font-size: 20px;
+      color: #ff4b5c;
+      min-height: 28px;
+      margin-bottom: 8px;
+    }
+    .reveal p { opacity: 0; transition: opacity 0.6s ease; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      z-index: 4;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h1>Hey Anoma ❤️</h1>
+  <div class="card" id="card">
+    <h1>Hey Anoma 💖</h1>
     <p>
-      From the moment I met you,  
-      my days became brighter and my smiles became real.  
-      You are special to me 💕  
+      From the moment you came into my life,<br/>
+      my days became brighter and my smiles became real 😊✨<br/><br/>
+      You are not just special to me…<br/>
+      you are my favorite person 🫶
     </p>
     <h2>Will you be my Valentine? 🌹</h2>
-
-    <button id="yesBtn" onclick="yesClicked()">Yes 💖</button>
-    <button id="noBtn" onmouseover="moveNo()">No 🙈</button>
+    <div class="btns">
+      <button id="yesBtn">YES 💖</button>
+      <button id="noBtn">NO 🙈</button>
+    </div>
   </div>
 
+  <div class="toast" id="toast">Nice try 😜 You can’t press NO today!</div>
+
   <script>
-    function yesClicked() {
-      document.body.innerHTML = `
-        <div style="text-align:center; padding:30px;">
-          <h1 style="color:white;">YAYYYY! 💖</h1>
-          <h2 style="color:white;">You made me the happiest person 🥰</h2>
-          <p style="color:white;">Happy Valentine’s Day, Anoma 🌹</p>
-        </div>
-      `;
-    }
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const card = document.getElementById('card');
+    const toast = document.getElementById('toast');
 
     function moveNo() {
-      const noBtn = document.getElementById("noBtn");
-      const x = Math.random() * (window.innerWidth - 100);
-      const y = Math.random() * (window.innerHeight - 50);
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
+      const pad = 20;
+      const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad*2) + pad;
+      const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad*2) + pad;
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+      toast.style.display = 'block';
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.style.display = 'none', 1200);
     }
 
-    function createHeart() {
-      const heart = document.createElement("div");
-      heart.className = "hearts";
-      heart.innerHTML = "❤️";
-      heart.style.left = Math.random() * window.innerWidth + "px";
-      heart.style.fontSize = (Math.random() * 20 + 10) + "px";
-      document.body.appendChild(heart);
+    // Mobile-friendly: touch + hover
+    noBtn.addEventListener('touchstart', moveNo, { passive: true });
+    noBtn.addEventListener('mouseover', moveNo);
 
-      setTimeout(() => {
-        heart.remove();
-      }, 5000);
+    yesBtn.addEventListener('click', showYes);
+
+    function showYes() {
+      card.innerHTML = `
+        <div class="typing" id="typing"></div>
+        <div class="reveal" id="reveal">
+          <p>Yayyy! She said YES 🎉💖</p>
+          <p>Congratulations, ANOMA 🥰🌹</p>
+          <p>This moment just became a beautiful memory ✨📸</p>
+          <p>You are my today, my tomorrow, and my forever 💞</p>
+          <p>Thank you for being my heartbeat 💓, my love ❤️, my best friend 🫂</p>
+          <p><strong>I LOVE YOU endlessly, Anoma 😘♾️</strong></p>
+          <p style="margin-top:10px; font-size:14px; opacity:.9;">P.S. This little website is just a small way to say how big my feelings for you are 💌✨</p>
+        </div>
+      `;
+      typeText("I love you, ANOMA ❤️", document.getElementById('typing'));
+      revealLines();
     }
 
-    setInterval(createHeart, 500);
+    function typeText(text, el) {
+      let i = 0;
+      const t = setInterval(() => {
+        el.textContent += text.charAt(i++);
+        if (i >= text.length) clearInterval(t);
+      }, 70);
+    }
+
+    function revealLines() {
+      const lines = document.querySelectorAll('#reveal p');
+      lines.forEach((p, i) => {
+        setTimeout(() => p.style.opacity = 1, 700 * (i + 1));
+      });
+    }
+
+    // Falling petals/hearts
+    function spawnFall() {
+      const el = document.createElement('div');
+      el.className = Math.random() > 0.5 ? 'petal' : 'heart';
+      el.textContent = Math.random() > 0.5 ? '🌹' : '💖';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.fontSize = (Math.random() * 16 + 14) + 'px';
+      el.style.animationDuration = (Math.random() * 4 + 6) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 12000);
+    }
+    setInterval(spawnFall, 700);
+
+    // Tap to spawn hearts
+    document.addEventListener('touchstart', (e) => {
+      const h = document.createElement('div');
+      h.className = 'tap-heart';
+      h.textContent = '💖';
+      h.style.left = e.touches[0].clientX + 'px';
+      h.style.top = e.touches[0].clientY + 'px';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1000);
+    }, { passive: true });
   </script>
-
 </body>
 </html>
